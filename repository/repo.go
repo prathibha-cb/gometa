@@ -22,6 +22,7 @@ import (
 	fdb "github.com/couchbase/indexing/secondary/fdb"
 	"math"
 	"sync"
+	"time"
 )
 
 /////////////////////////////////////////////////////////////////////////////
@@ -138,7 +139,12 @@ func (r *Repository) Set(kind RepoKind, key string, content []byte) error {
 		return err
 	}
 
-	return r.dbfile.Commit(fdb.COMMIT_NORMAL)
+	start := time.Now()
+	err = r.dbfile.Commit(fdb.COMMIT_NORMAL)
+	elapsed := time.Since(start)
+	log.Current.Debugf("Repo.Set(): Duration of commit = %v seconds", elapsed.Seconds())
+
+	return err
 }
 
 func (r *Repository) CreateSnapshot(kind RepoKind, txnid common.Txnid) error {
